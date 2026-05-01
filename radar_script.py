@@ -1,4 +1,4 @@
-```python
+python
 import os
 import requests
 import yfinance as yf
@@ -217,4 +217,3 @@ def run_radar():
 
 if __name__ == "__main__":
     run_radar()
-```
