@@ -1,0 +1,40 @@
+```yaml
+name: Market Sentiment Radar
+
+on:
+  schedule:
+    - cron: '0 22 * * *'   # 每天 UTC 22:00 = 台灣時間 06:00
+  workflow_dispatch:        # 允許手動執行
+
+jobs:
+  run-radar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Sentiment Radar
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: python radar_script.py
+
+      - name: Backup data to GitHub Repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git diff --staged --quiet || git commit -m "Auto backup: $(date '+%Y-%m-%d %H:%M')"
+          git push
+```
